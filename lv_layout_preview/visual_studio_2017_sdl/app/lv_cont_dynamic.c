@@ -176,7 +176,10 @@ static void silder_ctrl_create(lv_obj_t* par, win_obj_t* win)
     lv_obj_align(slider, win->cont_base.cont, LV_ALIGN_OUT_LEFT_TOP, -20, 0);
     lv_slider_set_range(slider, 0, h);
     lv_slider_set_value(slider, 0, LV_ANIM_OFF);
-
+    lv_color_t color_bg = lv_obj_get_style_bg_color(slider, LV_SLIDER_PART_BG);
+    lv_color_t color_indic = lv_obj_get_style_bg_color(slider, LV_SLIDER_PART_INDIC);
+    lv_obj_set_style_local_bg_color(slider, LV_SLIDER_PART_BG, LV_STATE_DEFAULT, color_indic);
+    lv_obj_set_style_local_bg_color(slider, LV_SLIDER_PART_INDIC, LV_STATE_DEFAULT, color_bg);
 
     win->cont_base.slider_height = slider;
 
