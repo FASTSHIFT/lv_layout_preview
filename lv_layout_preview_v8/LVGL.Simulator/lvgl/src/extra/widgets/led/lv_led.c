@@ -59,7 +59,10 @@ const lv_obj_class_t lv_led_class  = {
  */
 lv_obj_t * lv_led_create(lv_obj_t * parent)
 {
-    return lv_obj_class_create_obj(&lv_led_class, parent, NULL);
+    LV_LOG_INFO("begin")
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 /*=====================
@@ -152,7 +155,6 @@ static void lv_led_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
     LV_UNUSED(class_p);
     lv_led_t * led = (lv_led_t *)obj;
     led->color = lv_theme_get_color_primary(obj);
-    led->bright = LV_LED_BRIGHT_MAX;
     led->bright = LV_LED_BRIGHT_MAX;
 }
 

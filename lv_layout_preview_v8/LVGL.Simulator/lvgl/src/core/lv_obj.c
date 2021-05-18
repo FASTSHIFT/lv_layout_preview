@@ -174,7 +174,10 @@ void lv_deinit(void)
 
 lv_obj_t * lv_obj_create(lv_obj_t * parent)
 {
-    return lv_obj_class_create_obj(&lv_obj_class, parent, NULL);
+    LV_LOG_INFO("begin")
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 /*=====================
@@ -451,9 +454,9 @@ static void lv_obj_draw(lv_event_t * e)
     lv_obj_t * obj = lv_event_get_target(e);
     if(code == LV_EVENT_COVER_CHECK) {
         lv_cover_check_info_t * info = lv_event_get_param(e);
-        if(info->res == LV_DRAW_RES_MASKED) return;
+        if(info->res == LV_COVER_RES_MASKED) return;
         if(lv_obj_get_style_clip_corner(obj, LV_PART_MAIN)) {
-            info->res = LV_DRAW_RES_MASKED;
+            info->res = LV_COVER_RES_MASKED;
             return;
         }
 
@@ -469,27 +472,27 @@ static void lv_obj_draw(lv_event_t * e)
         coords.y2 += h;
 
         if(_lv_area_is_in(info->area, &coords, r) == false) {
-            info->res = LV_DRAW_RES_NOT_COVER;
+            info->res = LV_COVER_RES_NOT_COVER;
            return;
         }
 
         if(lv_obj_get_style_bg_opa(obj, LV_PART_MAIN) < LV_OPA_MAX) {
-            info->res = LV_DRAW_RES_NOT_COVER;
+            info->res = LV_COVER_RES_NOT_COVER;
             return;
         }
 
 #if LV_DRAW_COMPLEX
         if(lv_obj_get_style_blend_mode(obj, LV_PART_MAIN) != LV_BLEND_MODE_NORMAL) {
-            info->res = LV_DRAW_RES_NOT_COVER;
+            info->res = LV_COVER_RES_NOT_COVER;
             return;
         }
 #endif
         if(lv_obj_get_style_opa(obj, LV_PART_MAIN) < LV_OPA_MAX) {
-            info->res = LV_DRAW_RES_NOT_COVER;
+            info->res = LV_COVER_RES_NOT_COVER;
             return;
         }
 
-        info->res = LV_DRAW_RES_COVER;
+        info->res = LV_COVER_RES_COVER;
 
     }
     else if(code == LV_EVENT_DRAW_MAIN) {

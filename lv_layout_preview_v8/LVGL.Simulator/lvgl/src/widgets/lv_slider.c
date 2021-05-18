@@ -59,7 +59,9 @@ const lv_obj_class_t lv_slider_class = {
 lv_obj_t * lv_slider_create(lv_obj_t * parent)
 {
     LV_LOG_INFO("begin")
-    return lv_obj_class_create_obj(&lv_slider_class, parent, NULL);
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 bool lv_slider_is_dragged(const lv_obj_t * obj)
@@ -87,7 +89,6 @@ static void lv_slider_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLL_CHAIN);
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_ext_click_area(obj, LV_DPX(8));
-    lv_obj_set_height(obj, LV_DPX(10));
 }
 
 static void lv_slider_event(const lv_obj_class_t * class_p, lv_event_t * e)
@@ -110,11 +111,11 @@ static void lv_slider_event(const lv_obj_class_t * class_p, lv_event_t * e)
         lv_hit_test_info_t * info = lv_event_get_param(e);
 
         /*Ordinary slider: was the knob area hit?*/
-        info->result = _lv_area_is_point_on(&slider->right_knob_area, info->point, 0);
+        info->res = _lv_area_is_point_on(&slider->right_knob_area, info->point, 0);
 
         /*There's still a change we have a hit, if we have another knob*/
-        if((info->result == false) && (type == LV_SLIDER_MODE_RANGE)) {
-            info->result = _lv_area_is_point_on(&slider->left_knob_area, info->point, 0);
+        if((info->res == false) && (type == LV_SLIDER_MODE_RANGE)) {
+            info->res = _lv_area_is_point_on(&slider->left_knob_area, info->point, 0);
         }
     }
     else if(code == LV_EVENT_PRESSED) {
@@ -371,7 +372,7 @@ static void draw_knob(lv_event_t * e)
     position_knob(obj, &knob_area, knob_size, hor);
     lv_area_copy(&slider->right_knob_area, &knob_area);
 
-    lv_obj_draw_dsc_t dsc;
+    lv_obj_draw_part_dsc_t dsc;
     lv_obj_draw_dsc_init(&dsc, clip_area);
     dsc.part = LV_PART_KNOB;
     dsc.id = 0;

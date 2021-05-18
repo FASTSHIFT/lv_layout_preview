@@ -90,7 +90,9 @@ const lv_obj_class_t lv_dropdownlist_class = {
 lv_obj_t * lv_dropdown_create(lv_obj_t * parent)
 {
     LV_LOG_INFO("begin")
-    return lv_obj_class_create_obj(&lv_dropdown_class, parent, NULL);
+    lv_obj_t * obj = lv_obj_class_create_obj(&lv_dropdown_class, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 /*=====================
@@ -432,8 +434,9 @@ void lv_dropdown_open(lv_obj_t * dropdown_obj)
     }
 
     lv_coord_t label_h = lv_obj_get_height(label);
-    lv_coord_t top = lv_obj_get_style_pad_top(dropdown->list, LV_PART_MAIN);
-    lv_coord_t bottom = lv_obj_get_style_pad_bottom(dropdown->list, LV_PART_MAIN);
+    lv_coord_t border_width = lv_obj_get_style_border_width(dropdown->list, LV_PART_MAIN);
+    lv_coord_t top = lv_obj_get_style_pad_top(dropdown->list, LV_PART_MAIN) + border_width;
+    lv_coord_t bottom = lv_obj_get_style_pad_bottom(dropdown->list, LV_PART_MAIN) + border_width;
 
     lv_coord_t list_fit_h = label_h + top + bottom;
     lv_coord_t list_h = list_fit_h;
@@ -516,7 +519,10 @@ void lv_dropdown_close(lv_obj_t * obj)
 
 static lv_obj_t * lv_dropdown_list_create(lv_obj_t * parent)
 {
-    return lv_obj_class_create_obj(&lv_dropdownlist_class, parent, NULL);
+    LV_LOG_INFO("begin")
+    lv_obj_t * obj = lv_obj_class_create_obj(&lv_dropdownlist_class, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 static void lv_dropdown_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
@@ -645,7 +651,7 @@ static void lv_dropdown_event(const lv_obj_class_t * class_p, lv_event_t * e)
         lv_obj_refresh_self_size(obj);
         if(dropdown->list) lv_dropdown_close(obj);
     }
-    else if(code == LV_EVENT_REFR_SELF_SIZE) {
+    else if(code == LV_EVENT_GET_SELF_SIZE) {
         lv_point_t * p = lv_event_get_param(e);
         const lv_font_t * font = lv_obj_get_style_text_font(obj, LV_PART_MAIN);
         p->y = lv_font_get_line_height(font);
@@ -723,9 +729,10 @@ static void draw_main(lv_event_t * e)
     lv_dropdown_t * dropdown = (lv_dropdown_t *)obj;
     const lv_area_t * clip_area = lv_event_get_param(e);
 
-    lv_coord_t left = lv_obj_get_style_pad_left(obj, LV_PART_MAIN);
-    lv_coord_t right = lv_obj_get_style_pad_right(obj, LV_PART_MAIN);
-    lv_coord_t top = lv_obj_get_style_pad_top(obj, LV_PART_MAIN);
+    lv_coord_t border_width = lv_obj_get_style_border_width(obj, LV_PART_MAIN);
+    lv_coord_t left = lv_obj_get_style_pad_left(obj, LV_PART_MAIN) + border_width;
+    lv_coord_t right = lv_obj_get_style_pad_right(obj, LV_PART_MAIN) + border_width;
+    lv_coord_t top = lv_obj_get_style_pad_top(obj, LV_PART_MAIN) + border_width;
 
     lv_draw_label_dsc_t symbol_dsc;
     lv_draw_label_dsc_init(&symbol_dsc);

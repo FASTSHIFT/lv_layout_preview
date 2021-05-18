@@ -76,8 +76,8 @@ lv_style_prop_t LV_STYLE_GRID_COLUMN_DSC_ARRAY;
 lv_style_prop_t LV_STYLE_GRID_COLUMN_ALIGN;
 lv_style_prop_t LV_STYLE_GRID_ROW_DSC_ARRAY;
 lv_style_prop_t LV_STYLE_GRID_ROW_ALIGN;
-lv_style_prop_t LV_STYLE_GRID_CELL_COL_POS;
-lv_style_prop_t LV_STYLE_GRID_CELL_COL_SPAN;
+lv_style_prop_t LV_STYLE_GRID_CELL_COLUMN_POS;
+lv_style_prop_t LV_STYLE_GRID_CELL_COLUMN_SPAN;
 lv_style_prop_t LV_STYLE_GRID_CELL_X_ALIGN;
 lv_style_prop_t LV_STYLE_GRID_CELL_ROW_POS;
 lv_style_prop_t LV_STYLE_GRID_CELL_ROW_SPAN;
@@ -107,8 +107,8 @@ void lv_grid_init(void)
 
     LV_STYLE_GRID_CELL_ROW_SPAN = lv_style_register_prop() | LV_STYLE_PROP_LAYOUT_REFR;
     LV_STYLE_GRID_CELL_ROW_POS = lv_style_register_prop() | LV_STYLE_PROP_LAYOUT_REFR;
-    LV_STYLE_GRID_CELL_COL_SPAN = lv_style_register_prop() | LV_STYLE_PROP_LAYOUT_REFR;
-    LV_STYLE_GRID_CELL_COL_POS = lv_style_register_prop() | LV_STYLE_PROP_LAYOUT_REFR;
+    LV_STYLE_GRID_CELL_COLUMN_SPAN = lv_style_register_prop() | LV_STYLE_PROP_LAYOUT_REFR;
+    LV_STYLE_GRID_CELL_COLUMN_POS = lv_style_register_prop() | LV_STYLE_PROP_LAYOUT_REFR;
     LV_STYLE_GRID_CELL_X_ALIGN = lv_style_register_prop() | LV_STYLE_PROP_LAYOUT_REFR;
     LV_STYLE_GRID_CELL_Y_ALIGN = lv_style_register_prop() | LV_STYLE_PROP_LAYOUT_REFR;
 }
@@ -163,8 +163,9 @@ static void grid_update(lv_obj_t * cont, void * user_data)
 
     /*Calculate the grids absolute x and y coordinates.
      *It will be used as helper during item repositioning to avoid calculating this value for every children*/
-    lv_coord_t pad_left = lv_obj_get_style_pad_left(cont, LV_PART_MAIN);
-    lv_coord_t pad_top = lv_obj_get_style_pad_top(cont, LV_PART_MAIN);
+    lv_coord_t border_widt = lv_obj_get_style_border_width(cont, LV_PART_MAIN);
+    lv_coord_t pad_left = lv_obj_get_style_pad_left(cont, LV_PART_MAIN) + border_widt;
+    lv_coord_t pad_top = lv_obj_get_style_pad_top(cont, LV_PART_MAIN) + border_widt;
     hint.grid_abs.x = pad_left + cont->coords.x1 - lv_obj_get_scroll_x(cont);
     hint.grid_abs.y = pad_top + cont->coords.y1 - lv_obj_get_scroll_y(cont);
 

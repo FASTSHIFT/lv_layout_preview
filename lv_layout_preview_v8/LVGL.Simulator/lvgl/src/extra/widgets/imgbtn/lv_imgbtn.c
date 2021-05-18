@@ -55,7 +55,10 @@ const lv_obj_class_t lv_imgbtn_class = {
  */
 lv_obj_t * lv_imgbtn_create(lv_obj_t * parent)
 {
-   return lv_obj_class_create_obj(&lv_imgbtn_class, parent, NULL);
+    LV_LOG_INFO("begin")
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 /*=====================
@@ -77,13 +80,6 @@ void lv_imgbtn_set_src(lv_obj_t * obj, lv_imgbtn_state_t state, const void * src
                              const void * src_right)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
-
-    if(lv_img_src_get_type(src_left) == LV_IMG_SRC_SYMBOL ||
-       lv_img_src_get_type(src_mid) == LV_IMG_SRC_SYMBOL ||
-       lv_img_src_get_type(src_right) == LV_IMG_SRC_SYMBOL) {
-        LV_LOG_WARN("lv_imgbtn_set_src: symbols are not supported in tiled mode");
-        return;
-    }
 
     lv_imgbtn_t * imgbtn = (lv_imgbtn_t *)obj;
 
@@ -177,7 +173,7 @@ static void lv_imgbtn_event(const lv_obj_class_t * class_p, lv_event_t * e)
     }
     else if(code == LV_EVENT_COVER_CHECK) {
         lv_cover_check_info_t * info = lv_event_get_param(e);
-        if(info->res != LV_DRAW_RES_MASKED) info->res = LV_DRAW_RES_NOT_COVER;
+        if(info->res != LV_COVER_RES_MASKED) info->res = LV_COVER_RES_NOT_COVER;
     }
 }
 
@@ -192,10 +188,6 @@ static void draw_main(lv_event_t * e)
 
     /*Simply draw the middle src if no tiled*/
     const void * src = imgbtn->img_src_left[state];
-    if(lv_img_src_get_type(src) == LV_IMG_SRC_SYMBOL) {
-        LV_LOG_WARN("lv_imgbtn_draw: SYMBOLS are not supported in tiled mode")
-                            return;
-    }
 
     lv_coord_t tw = lv_obj_get_style_transform_width(obj, LV_PART_MAIN);
     lv_coord_t th = lv_obj_get_style_transform_height(obj, LV_PART_MAIN);
@@ -275,16 +267,7 @@ static void refr_img(lv_obj_t * obj)
     if(src == NULL) return;
 
     lv_res_t info_res = LV_RES_OK;
-    if(lv_img_src_get_type(src) == LV_IMG_SRC_SYMBOL) {
-        const lv_font_t * font = lv_obj_get_style_text_font(obj, LV_PART_MAIN);
-        header.h = lv_font_get_line_height(font);
-        header.w = lv_txt_get_width(src, (uint16_t)strlen(src), font, 0, LV_TEXT_FLAG_NONE);
-        header.always_zero = 0;
-        header.cf = LV_IMG_CF_ALPHA_1BIT;
-    }
-    else {
-        info_res = lv_img_decoder_get_info(src, &header);
-    }
+    info_res = lv_img_decoder_get_info(src, &header);
 
     if(info_res == LV_RES_OK) {
         imgbtn->act_cf = header.cf;

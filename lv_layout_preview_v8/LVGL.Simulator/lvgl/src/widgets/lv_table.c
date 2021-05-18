@@ -64,7 +64,9 @@ const lv_obj_class_t lv_table_class  = {
 lv_obj_t * lv_table_create(lv_obj_t * parent)
 {
     LV_LOG_INFO("begin")
-    return lv_obj_class_create_obj(&lv_table_class, parent, NULL);
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 /*=====================
@@ -476,7 +478,7 @@ static void lv_table_event(const lv_obj_class_t * class_p, lv_event_t * e)
     if(code == LV_EVENT_STYLE_CHANGED) {
         refr_size(obj, 0);
     }
-    else if(code == LV_EVENT_REFR_SELF_SIZE) {
+    else if(code == LV_EVENT_GET_SELF_SIZE) {
         lv_point_t * p = lv_event_get_param(e);
         uint32_t i;
         lv_coord_t w = 0;
@@ -617,7 +619,7 @@ static void draw_main(lv_event_t * e)
     bool rtl = lv_obj_get_base_dir(obj)  == LV_BIDI_DIR_RTL ? true : false;
 
     /*Handle custom drawer*/
-    lv_obj_draw_dsc_t dsc;
+    lv_obj_draw_part_dsc_t dsc;
     lv_obj_draw_dsc_init(&dsc, clip_area);
     dsc.part = LV_PART_ITEMS;
     dsc.rect_dsc = &rect_dsc_act;
@@ -689,7 +691,7 @@ static void draw_main(lv_event_t * e)
 
             lv_state_t cell_state = LV_STATE_DEFAULT;
             if(row == table->row_act && col == table->col_act) {
-                if(obj->state & LV_STATE_PRESSED) cell_state |= LV_STATE_PRESSED;
+                if(!(obj->state & LV_STATE_SCROLLED) && (obj->state & LV_STATE_PRESSED)) cell_state |= LV_STATE_PRESSED;
                 if(obj->state & LV_STATE_FOCUSED) cell_state |= LV_STATE_FOCUSED;
                 if(obj->state & LV_STATE_FOCUS_KEY) cell_state |= LV_STATE_FOCUS_KEY;
                 if(obj->state & LV_STATE_EDITED) cell_state |= LV_STATE_EDITED;

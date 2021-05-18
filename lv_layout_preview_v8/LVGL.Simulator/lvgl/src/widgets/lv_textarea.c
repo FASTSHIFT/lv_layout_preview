@@ -84,7 +84,9 @@ static const char * ta_insert_replace;
 lv_obj_t * lv_textarea_create(lv_obj_t * parent)
 {
     LV_LOG_INFO("begin")
-  return lv_obj_class_create_obj(&lv_textarea_class, parent, NULL);
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 /*======================
@@ -518,11 +520,11 @@ void lv_textarea_set_insert_replace(lv_obj_t * obj, const char * txt)
     ta_insert_replace = txt;
 }
 
-void lv_textarea_set_text_sel(lv_obj_t * obj, bool en)
+void lv_textarea_set_text_selection(lv_obj_t * obj, bool en)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
 
-#if LV_LABEL_TEXT_SEL
+#if LV_LABEL_TEXT_SELECTION
      lv_textarea_t * ta = (lv_textarea_t *)obj;
 
     ta->text_sel_en = en;
@@ -651,11 +653,11 @@ bool lv_textarea_text_is_selected(const lv_obj_t * obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
 
-#if LV_LABEL_TEXT_SEL
+#if LV_LABEL_TEXT_SELECTION
      lv_textarea_t * ta = (lv_textarea_t *)obj;
 
-    if((lv_label_get_text_sel_start(ta->label) == LV_DRAW_LABEL_NO_TXT_SEL ||
-        lv_label_get_text_sel_end(ta->label) == LV_DRAW_LABEL_NO_TXT_SEL)) {
+    if((lv_label_get_text_selection_start(ta->label) == LV_DRAW_LABEL_NO_TXT_SEL ||
+        lv_label_get_text_selection_end(ta->label) == LV_DRAW_LABEL_NO_TXT_SEL)) {
         return true;
     }
     else {
@@ -667,11 +669,11 @@ bool lv_textarea_text_is_selected(const lv_obj_t * obj)
 #endif
 }
 
-bool lv_textarea_get_text_sel_en(lv_obj_t * obj)
+bool lv_textarea_get_text_selection(lv_obj_t * obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
 
-#if LV_LABEL_TEXT_SEL
+#if LV_LABEL_TEXT_SELECTION
      lv_textarea_t * ta = (lv_textarea_t *)obj;
     return ta->text_sel_en;
 #else
@@ -697,11 +699,11 @@ void lv_textarea_clear_selection(lv_obj_t * obj)
 {
     LV_ASSERT_OBJ(obj, MY_CLASS);
 
-#if LV_LABEL_TEXT_SEL
+#if LV_LABEL_TEXT_SELECTION
      lv_textarea_t * ta = (lv_textarea_t *)obj;
 
-    if(lv_label_get_text_sel_start(ta->label) != LV_DRAW_LABEL_NO_TXT_SEL ||
-       lv_label_get_text_sel_end(ta->label) != LV_DRAW_LABEL_NO_TXT_SEL) {
+    if(lv_label_get_text_selection_start(ta->label) != LV_DRAW_LABEL_NO_TXT_SEL ||
+       lv_label_get_text_selection_end(ta->label) != LV_DRAW_LABEL_NO_TXT_SEL) {
         lv_label_set_text_sel_start(ta->label, LV_DRAW_LABEL_NO_TXT_SEL);
         lv_label_set_text_sel_end(ta->label, LV_DRAW_LABEL_NO_TXT_SEL);
     }
@@ -804,7 +806,7 @@ static void lv_textarea_constructor(const lv_obj_class_t * class_p, lv_obj_t * o
     ta->cursor.click_pos  = 1;
     ta->cursor.valid_x    = 0;
     ta->one_line          = 0;
-#if LV_LABEL_TEXT_SEL
+#if LV_LABEL_TEXT_SELECTION
     ta->text_sel_en = 0;
 #endif
     ta->label       = NULL;
@@ -1040,7 +1042,7 @@ static void start_cursor_blink(lv_obj_t * obj)
 
 static void refr_cursor_area(lv_obj_t * obj)
 {
-     lv_textarea_t * ta = (lv_textarea_t *)obj;
+    lv_textarea_t * ta = (lv_textarea_t *)obj;
 
     const lv_font_t * font = lv_obj_get_style_text_font(obj, LV_PART_MAIN);
     lv_coord_t line_space = lv_obj_get_style_text_line_space(obj, LV_PART_MAIN);
@@ -1152,7 +1154,7 @@ static void update_cursor_position_on_click(lv_event_t * e)
 
     uint16_t char_id_at_click;
 
-#if LV_LABEL_TEXT_SEL
+#if LV_LABEL_TEXT_SELECTION
     lv_label_t * label_data = (lv_label_t *)ta->label;
     bool click_outside_label;
     /*Check if the click happened on the left side of the area outside the label*/
@@ -1174,7 +1176,7 @@ static void update_cursor_position_on_click(lv_event_t * e)
         if(!ta->text_sel_in_prog && !click_outside_label && code == LV_EVENT_PRESSED) {
             /*Input device just went down. Store the selection start position*/
             ta->sel_start    = char_id_at_click;
-            ta->sel_end      = LV_LABEL_TEXT_SEL_OFF;
+            ta->sel_end      = LV_LABEL_TEXT_SELECTION_OFF;
             ta->text_sel_in_prog = 1;
             lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLL_CHAIN);
         }
@@ -1271,12 +1273,10 @@ static void draw_placeholder(lv_event_t * e)
 
         lv_coord_t left = lv_obj_get_style_pad_left(obj, LV_PART_MAIN);
         lv_coord_t top = lv_obj_get_style_pad_top(obj, LV_PART_MAIN);
+        lv_coord_t border_width = lv_obj_get_style_border_width(obj, LV_PART_MAIN);
         lv_area_t ph_coords;
         lv_area_copy(&ph_coords, &obj->coords);
-        ph_coords.x1 += left;
-        ph_coords.x2 += left;
-        ph_coords.y1 += top;
-        ph_coords.y2 += top;
+        lv_area_move(&ph_coords, left + border_width, top + border_width);
         lv_draw_label(&ph_coords, clip_area, &ph_dsc, ta->placeholder_txt, NULL);
     }
 }
@@ -1311,8 +1311,9 @@ static void draw_cursor(lv_event_t * e)
     if(cur_dsc.bg_opa == LV_OPA_COVER) {
         lv_coord_t left = lv_obj_get_style_pad_left(obj, LV_PART_CURSOR);
         lv_coord_t top = lv_obj_get_style_pad_top(obj, LV_PART_CURSOR);
-        cur_area.x1 += left;
-        cur_area.y1 += top;
+        lv_coord_t border_width = lv_obj_get_style_border_width(obj, LV_PART_MAIN);
+        cur_area.x1 += left + border_width;
+        cur_area.y1 += top + border_width;
 
         lv_draw_label_dsc_t cur_label_dsc;
         lv_draw_label_dsc_init(&cur_label_dsc);

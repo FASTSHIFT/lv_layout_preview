@@ -65,7 +65,9 @@ const lv_obj_class_t lv_arc_class  = {
 lv_obj_t * lv_arc_create(lv_obj_t * parent)
 {
     LV_LOG_INFO("begin")
-    return lv_obj_class_create_obj(&lv_arc_class, parent, NULL);
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 /*======================
@@ -685,7 +687,7 @@ static void lv_arc_draw(lv_event_t * e)
     lv_coord_t arc_r;
     get_center(obj, &center, &arc_r);
 
-    lv_obj_draw_dsc_t obj_draw_dsc;
+    lv_obj_draw_part_dsc_t obj_draw_dsc;
     lv_obj_draw_dsc_init(&obj_draw_dsc, clip_area);
 
     /*Draw the background arc*/

@@ -134,13 +134,13 @@ static void selectors_create(lv_obj_t * parent)
         lv_obj_set_height(list, lv_obj_get_content_height(parent));
     }
 
-    obj = lv_list_add_btn(list, LV_SYMBOL_OK, "Apply", NULL);
-    obj = lv_list_add_btn(list, LV_SYMBOL_CLOSE, "Close", NULL);
-    obj = lv_list_add_btn(list, LV_SYMBOL_EYE_OPEN, "Show", NULL);
-    obj = lv_list_add_btn(list, LV_SYMBOL_EYE_CLOSE, "Hide", NULL);
-    obj= lv_list_add_btn(list, LV_SYMBOL_TRASH, "Delete", NULL);
-    obj = lv_list_add_btn(list, LV_SYMBOL_COPY, "Copy", NULL);
-    obj = lv_list_add_btn(list, LV_SYMBOL_PASTE, "Paste", NULL);
+    lv_list_add_btn(list, LV_SYMBOL_OK, "Apply");
+    lv_list_add_btn(list, LV_SYMBOL_CLOSE, "Close");
+    lv_list_add_btn(list, LV_SYMBOL_EYE_OPEN, "Show");
+    lv_list_add_btn(list, LV_SYMBOL_EYE_CLOSE, "Hide");
+    lv_list_add_btn(list, LV_SYMBOL_TRASH, "Delete");
+    lv_list_add_btn(list, LV_SYMBOL_COPY, "Copy");
+    lv_list_add_btn(list, LV_SYMBOL_PASTE, "Paste");
 }
 
 static void text_input_create(lv_obj_t * parent)
@@ -170,6 +170,7 @@ static void msgbox_create(void)
     lv_obj_t * mbox = lv_msgbox_create(NULL, "Hi", "Welcome to the keyboard and encoder demo", btns, false);
     lv_obj_add_event_cb(mbox, msgbox_event_cb, LV_EVENT_ALL, NULL);
     lv_group_focus_obj(lv_msgbox_get_btns(mbox));
+    lv_obj_add_state(lv_msgbox_get_btns(mbox), LV_STATE_FOCUS_KEY);
 #if LV_EX_MOUSEWHEEL
     lv_group_set_editing(g, true);
 #endif
@@ -181,7 +182,6 @@ static void msgbox_create(void)
     lv_obj_set_style_bg_opa(bg, LV_OPA_70, 0);
     lv_obj_set_style_bg_color(bg, lv_palette_main(LV_PALETTE_GREY), 0);
 }
-
 
 static void msgbox_event_cb(lv_event_t * e)
 {

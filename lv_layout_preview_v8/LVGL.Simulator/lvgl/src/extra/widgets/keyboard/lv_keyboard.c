@@ -121,7 +121,10 @@ static const lv_btnmatrix_ctrl_t * kb_ctrl[5] = {
  */
 lv_obj_t * lv_keyboard_create(lv_obj_t * parent)
 {
-    return lv_obj_class_create_obj(&lv_keyboard_class, parent, NULL);
+    LV_LOG_INFO("begin")
+    lv_obj_t * obj = lv_obj_class_create_obj(&lv_keyboard_class, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 /*=====================
@@ -257,7 +260,6 @@ void lv_keyboard_def_event_cb(lv_event_t * e)
             res = lv_event_send(keyboard->ta, LV_EVENT_CANCEL, NULL);
             if(res != LV_RES_OK) return;
         }
-        lv_keyboard_set_textarea(obj, NULL); /*De-assign the text area  to hide it cursor if needed*/
         return;
     }
     else if(strcmp(txt, LV_SYMBOL_OK) == 0) {
@@ -268,8 +270,6 @@ void lv_keyboard_def_event_cb(lv_event_t * e)
             res = lv_event_send(keyboard->ta, LV_EVENT_READY, NULL);
             if(res != LV_RES_OK) return;
         }
-
-        lv_keyboard_set_textarea(obj, NULL); /*De-assign the text area  to hide it cursor if needed*/
         return;
     }
 

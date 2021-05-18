@@ -22,6 +22,7 @@
  **********************/
 static void lv_tabview_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj);
 static void lv_tabview_destructor(const lv_obj_class_t * class_p, lv_obj_t * obj);
+static void lv_tabview_event(const lv_obj_class_t * class_p, lv_event_t * e);
 static void btns_value_changed_event_cb(lv_event_t * e);
 static void cont_scroll_end_event_cb(lv_event_t * e);
 
@@ -31,6 +32,7 @@ static void cont_scroll_end_event_cb(lv_event_t * e);
 const lv_obj_class_t lv_tabview_class = {
         .constructor_cb = lv_tabview_constructor,
         .destructor_cb = lv_tabview_destructor,
+        .event_cb = lv_tabview_event,
         .width_def = LV_PCT(100),
         .height_def = LV_PCT(100),
         .base_class = &lv_obj_class,
@@ -49,9 +51,13 @@ static lv_coord_t tabsize_create;
 
 lv_obj_t * lv_tabview_create(lv_obj_t * parent, lv_dir_t tab_pos, lv_coord_t tab_size)
 {
+    LV_LOG_INFO("begin")
     tabpos_create = tab_pos;
     tabsize_create = tab_size;
-    return lv_obj_class_create_obj(&lv_tabview_class, parent, NULL);
+
+    lv_obj_t * obj = lv_obj_class_create_obj(&lv_tabview_class, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 lv_obj_t * lv_tabview_add_tab(lv_obj_t * obj, const char * name)
@@ -116,10 +122,13 @@ void lv_tabview_set_act(lv_obj_t * obj, uint32_t id, lv_anim_enable_t anim_en)
         id = tabview->tab_cnt - 1;
     }
 
+    /*To be sure lv_obj_get_content_width will return valid value*/
+    lv_obj_update_layout(obj);
+
     lv_obj_t * cont = lv_tabview_get_content(obj);
-    lv_obj_t * tab = lv_obj_get_child(cont, 0);
     lv_coord_t gap = lv_obj_get_style_pad_column(cont, LV_PART_MAIN);
-    lv_obj_scroll_to_x(cont, id * (gap + lv_obj_get_width(tab)), anim_en);
+    lv_coord_t w = lv_obj_get_content_width(obj);
+    lv_obj_scroll_to_x(cont, id * (gap + w), anim_en);
 
     lv_obj_t * btns = lv_tabview_get_tab_btns(obj);
     lv_btnmatrix_set_btn_ctrl(btns, id, LV_BTNMATRIX_CTRL_CHECKED);
@@ -226,6 +235,20 @@ static void lv_tabview_destructor(const lv_obj_class_t * class_p, lv_obj_t * obj
 
     lv_mem_free(tabview->map);
     tabview->map = NULL;
+}
+
+static void lv_tabview_event(const lv_obj_class_t * class_p, lv_event_t * e)
+{
+    LV_UNUSED(class_p);
+    lv_res_t res = lv_obj_event_base(&lv_tabview_class, e);
+    if(res != LV_RES_OK) return;
+
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+
+    if(code == LV_EVENT_SIZE_CHANGED) {
+        lv_tabview_set_act(target, lv_tabview_get_tab_act(target), LV_ANIM_OFF);
+    }
 }
 
 static void btns_value_changed_event_cb(lv_event_t * e)

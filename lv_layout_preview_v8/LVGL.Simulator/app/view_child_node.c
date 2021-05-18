@@ -46,7 +46,7 @@ lv_obj_t* obj_child_node_create(lv_obj_t* par, view_t* ui)
         LV_STYLE_BORDER_COLOR,
         LV_STYLE_PROP_INV
     };
-    lv_style_transition_dsc_init(&tran, prop, lv_anim_path_ease_out, 300, 0);
+    lv_style_transition_dsc_init(&tran, prop, lv_anim_path_ease_out, 300, 0, NULL);
     lv_obj_set_style_transition(obj, &tran, LV_STATE_CHECKED);
 
     lv_obj_t* label = lv_label_create(obj);

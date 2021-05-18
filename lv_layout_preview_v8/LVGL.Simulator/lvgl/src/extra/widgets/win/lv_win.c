@@ -44,8 +44,12 @@ static lv_coord_t create_header_height;
 
 lv_obj_t * lv_win_create(lv_obj_t * parent, lv_coord_t header_height)
 {
+    LV_LOG_INFO("begin")
     create_header_height = header_height;
-    return lv_obj_class_create_obj(&lv_win_class, parent, NULL);
+
+    lv_obj_t * obj = lv_obj_class_create_obj(&lv_win_class, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 lv_obj_t * lv_win_add_title(lv_obj_t * win, const char * txt)
@@ -58,12 +62,11 @@ lv_obj_t * lv_win_add_title(lv_obj_t * win, const char * txt)
     return title;
 }
 
-lv_obj_t * lv_win_add_btn(lv_obj_t * win, const void * icon, lv_coord_t btn_w, lv_event_cb_t event_cb)
+lv_obj_t * lv_win_add_btn(lv_obj_t * win, const void * icon, lv_coord_t btn_w)
 {
     lv_obj_t * header = lv_win_get_header(win);
     lv_obj_t * btn = lv_btn_create(header);
     lv_obj_set_size(btn, btn_w, LV_PCT(100));
-    lv_obj_add_event_cb(btn, event_cb, LV_EVENT_ALL, NULL);
 
     lv_obj_t * img = lv_img_create(btn);
     lv_img_set_src(img, icon);

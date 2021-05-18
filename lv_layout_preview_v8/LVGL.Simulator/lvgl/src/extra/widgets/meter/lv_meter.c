@@ -52,7 +52,9 @@ const lv_obj_class_t lv_meter_class = {
 lv_obj_t * lv_meter_create(lv_obj_t * parent)
 {
     LV_LOG_INFO("begin")
-    return lv_obj_class_create_obj(&lv_meter_class, parent, NULL);
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 /*=====================
@@ -357,7 +359,7 @@ static void draw_ticks_and_labels(lv_obj_t * obj, const lv_area_t * clip_area, c
 
     lv_meter_scale_t * scale;
 
-    lv_obj_draw_dsc_t dsc;
+    lv_obj_draw_part_dsc_t dsc;
     lv_obj_draw_dsc_init(&dsc, clip_area);
 
 #if LV_DRAW_COMPLEX

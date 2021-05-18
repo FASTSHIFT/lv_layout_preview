@@ -18,7 +18,7 @@ static void event_cb(lv_event_t * e)
         int32_t id = lv_chart_get_pressed_point(chart);
         if(id == LV_CHART_POINT_NONE) return;
 
-        LV_LOG_USER("Selected point %d\n", id);
+        LV_LOG_USER("Selected point %d", id);
 
         lv_chart_series_t * ser = lv_chart_get_series_next(chart, NULL);
         while(ser) {
@@ -45,16 +45,19 @@ static void event_cb(lv_event_t * e)
             a.y1 = chart->coords.y1 + p.y - 30;
             a.y2 = chart->coords.y1 + p.y - 10;
 
-            const lv_area_t * clip_area = lv_event_get_param(e);
+            const lv_area_t * clip_area = lv_event_get_clip_area(e);
             lv_draw_rect(&a, clip_area, &draw_rect_dsc);
 
             ser = lv_chart_get_series_next(chart, ser);
         }
     }
+    else if(code == LV_EVENT_RELEASED) {
+        lv_obj_invalidate(chart);
+    }
 }
 
 /**
- * Add ticks and labels to the axis and demonstrate scrolling
+ * Show the value of the pressed points
  */
 void lv_example_chart_4(void)
 {

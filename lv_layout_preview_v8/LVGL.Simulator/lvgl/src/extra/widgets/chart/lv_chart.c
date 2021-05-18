@@ -65,7 +65,9 @@ const lv_obj_class_t lv_chart_class = {
 lv_obj_t * lv_chart_create(lv_obj_t * parent)
 {
     LV_LOG_INFO("begin")
-    return lv_obj_class_create_obj(&lv_chart_class, parent, NULL);
+    lv_obj_t * obj = lv_obj_class_create_obj(MY_CLASS, parent);
+    lv_obj_class_init_obj(obj);
+    return obj;
 }
 
 void lv_chart_set_type(lv_obj_t * obj, lv_chart_type_t type)
@@ -642,7 +644,7 @@ static void lv_chart_event(const lv_obj_class_t * class_p, lv_event_t * e)
         lv_coord_t * s = lv_event_get_param(e);
         *s = LV_MAX4(*s, chart->tick[LV_CHART_AXIS_X].draw_size,
                      chart->tick[LV_CHART_AXIS_PRIMARY_Y].draw_size, chart->tick[LV_CHART_AXIS_SECONDARY_Y].draw_size);
-    } else if(code == LV_EVENT_REFR_SELF_SIZE) {
+    } else if(code == LV_EVENT_GET_SELF_SIZE) {
         lv_point_t * p = lv_event_get_param(e);
         p->x = (lv_obj_get_content_width(obj) * chart->zoom_x) >> 8;
         p->y = (lv_obj_get_content_height(obj) * chart->zoom_y) >> 8;
@@ -680,7 +682,7 @@ static void draw_div_lines(lv_obj_t * obj, const lv_area_t * clip_area)
     lv_draw_line_dsc_init(&line_dsc);
     lv_obj_init_draw_line_dsc(obj, LV_PART_MAIN, &line_dsc);
 
-    lv_obj_draw_dsc_t obj_draw_dsc;
+    lv_obj_draw_part_dsc_t obj_draw_dsc;
     lv_obj_draw_dsc_init(&obj_draw_dsc, clip_area);
     obj_draw_dsc.line_dsc = &line_dsc;
     obj_draw_dsc.part = LV_PART_MAIN;
@@ -802,7 +804,7 @@ static void draw_series_line(lv_obj_t * obj, const lv_area_t * clip_area)
         y_tmp  = y_tmp / (chart->ymax[ser->y_axis] - chart->ymin[ser->y_axis]);
         p2.y   = h - y_tmp + y_ofs;
 
-        lv_obj_draw_dsc_t dsc;
+        lv_obj_draw_part_dsc_t dsc;
         lv_obj_draw_dsc_init(&dsc, clip_area);
         dsc.part = LV_PART_ITEMS;
         dsc.line_dsc = &line_dsc_default;
@@ -939,7 +941,7 @@ static void draw_series_bar(lv_obj_t * obj, const lv_area_t * clip_area)
     bool mask_ret = _lv_area_intersect(&series_mask, &obj->coords, clip_area);
     if(mask_ret == false) return;
 
-    lv_obj_draw_dsc_t dsc;
+    lv_obj_draw_part_dsc_t dsc;
     lv_obj_draw_dsc_init(&dsc, &series_mask);
     dsc.part = LV_PART_ITEMS;
 
@@ -1007,7 +1009,7 @@ static void draw_cursors(lv_obj_t * obj, const lv_area_t * clip_area)
     lv_coord_t point_w = lv_obj_get_style_width(obj, LV_PART_CURSOR) / 2;
     lv_coord_t point_h = lv_obj_get_style_width(obj, LV_PART_CURSOR) / 2;
 
-    lv_obj_draw_dsc_t dsc;
+    lv_obj_draw_part_dsc_t dsc;
     lv_obj_draw_dsc_init(&dsc, clip_area);
     dsc.line_dsc = &line_dsc_tmp;
     dsc.rect_dsc = &point_dsc_tmp;
@@ -1044,6 +1046,7 @@ static void draw_cursors(lv_obj_t * obj, const lv_area_t * clip_area)
             p1.y = cursor->dir & LV_DIR_TOP ? obj->coords.y1 : cy;
             p2.x = p1.x;
             p2.y = cursor->dir & LV_DIR_BOTTOM ? obj->coords.y2 : cy;
+
             lv_event_send(obj, LV_EVENT_DRAW_PART_BEGIN, &dsc);
             lv_draw_line(&p1, &p2, clip_area, &line_dsc_tmp);
             lv_event_send(obj, LV_EVENT_DRAW_PART_END, &dsc);
@@ -1104,10 +1107,6 @@ static void draw_y_ticks(lv_obj_t * obj, const lv_area_t * clip_area, lv_chart_a
         minor_len *= -1;
     }
 
-    lv_obj_draw_dsc_t dsc;
-    lv_obj_draw_dsc_init(&dsc, clip_area);
-    dsc.id = axis;
-    dsc.part = LV_PART_TICKS;
 
     lv_draw_line_dsc_t line_dsc;
     lv_draw_line_dsc_init(&line_dsc);
@@ -1116,6 +1115,13 @@ static void draw_y_ticks(lv_obj_t * obj, const lv_area_t * clip_area, lv_chart_a
     lv_draw_label_dsc_t label_dsc;
     lv_draw_label_dsc_init(&label_dsc);
     lv_obj_init_draw_label_dsc(obj, LV_PART_TICKS, &label_dsc);
+
+    lv_obj_draw_part_dsc_t dsc;
+    lv_obj_draw_dsc_init(&dsc, clip_area);
+    dsc.id = axis;
+    dsc.part = LV_PART_TICKS;
+    dsc.line_dsc = &line_dsc;
+    dsc.label_dsc = &label_dsc;
 
     uint32_t total_tick_num = (t->major_cnt - 1) * (t->minor_cnt);
     for(i = 0; i <= total_tick_num; i++) {
@@ -1172,6 +1178,7 @@ static void draw_y_ticks(lv_obj_t * obj, const lv_area_t * clip_area, lv_chart_a
             {
                 lv_draw_label(&a, clip_area, &label_dsc, dsc.text, NULL);
             }
+            lv_event_send(obj, LV_EVENT_DRAW_PART_END, &dsc);
         }
     }
 }
@@ -1210,10 +1217,12 @@ static void draw_x_ticks(lv_obj_t * obj, const lv_area_t * clip_area)
     line_dsc.dash_gap = 0;
     line_dsc.dash_width = 0;
 
-    lv_obj_draw_dsc_t dsc;
+    lv_obj_draw_part_dsc_t dsc;
     lv_obj_draw_dsc_init(&dsc, clip_area);
     dsc.id = LV_CHART_AXIS_X;
     dsc.part = LV_PART_TICKS;
+    dsc.label_dsc = &label_dsc;
+    dsc.line_dsc = &line_dsc;
 
     /*The columns ticks should be aligned to the center of blocks*/
     if(chart->type == LV_CHART_TYPE_BAR) {
@@ -1264,6 +1273,7 @@ static void draw_x_ticks(lv_obj_t * obj, const lv_area_t * clip_area)
         {
             lv_draw_label(&a, clip_area, &label_dsc, dsc.text, NULL);
         }
+        lv_event_send(obj, LV_EVENT_DRAW_PART_END, &dsc);
     }
 }
 
