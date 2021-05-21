@@ -22,7 +22,6 @@
 #endif
 
 #include "lvgl/lvgl.h"
-#include "lv_examples/lv_demo.h"
 #include "lv_drivers/win32drv/win32drv.h"
 #include "app/app.h"
 

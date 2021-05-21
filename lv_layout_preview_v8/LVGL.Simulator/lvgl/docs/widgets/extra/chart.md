@@ -17,12 +17,12 @@ Charts also support:
 - scrolling and zooming
 
 ## Parts and Styles
-- `LV_PART_MAIN` The background of the chart. It uses all the typical background related style properties and *line* properties for teh division lines. *Padding* makes the series area smaller. 
+- `LV_PART_MAIN` The background of the chart. It uses all the typical background related style properties and *line* properties for the division lines. *Padding* makes the series area smaller. 
 - `LV_PART_SCROLLBAR` The scrollbar used if the chart is zoomed. See the [Base object](/widgets/obj)'s documentation for details.
 - `LV_PART_ITEMS` Refers to the line or bar series.
     - Line chart: The *line* properties are used by the lines. `width`, `height`, `bg_color` and `radius` is used to set the appearance of points.
     - Bar chart: The typical background properties are used to style the bars. 
-- `LV_PART_CURSOR` *Line* properties are used to styke the cursors.  `width`, `height`, `bg_color` and `radius` is used to set the appearance of points.
+- `LV_PART_CURSOR` *Line* properties are used to style the cursors.  `width`, `height`, `bg_color` and `radius` is used to set the appearance of points.
 - `LV_PART_TICKS` *Line* and *Text* style properties are used to style the ticks
 
 ## Usage
@@ -59,7 +59,7 @@ Use `LV_CHART_POINT_DEF` as value to make the library skip drawing that point, c
 
 ### Update modes
 `lv_chart_set_next_value` can behave in two ways depending on *update mode*:
-- `LV_CHART_UPDATE_MODE_SHIFT` Shift old data to the left and add the new one o the right.
+- `LV_CHART_UPDATE_MODE_SHIFT` Shift old data to the left and add the new one to the right.
 - `LV_CHART_UPDATE_MODE_CIRCULAR` - Circularly add the new data (Like an ECG diagram).
 
 The update mode can be changed with `lv_chart_set_update_mode(chart, LV_CHART_UPDATE_MODE_...)`.
@@ -109,12 +109,15 @@ If `factor` is 256 there is no zoom. 512 means double zoom, etc. Fractional valu
 A cursor can be added with `lv_chart_cursor_t * c1 = lv_chart_add_cursor(chart, color, dir);`. 
 The possible values of `dir`  `LV_DIR_NONE/RIGHT/UP/LEFT/DOWN/HOR/VER/ALL` or their OR-ed values to tell in which direction(s) should the cursor be drawn.  
 
-`lv_chart_set_cursor_point(chart, cursor, &point)` sets the position of the cursor. 
-`point` is a pointer to an `lv_poin_t` variable. E.g. `lv_point_t point = {10, 20};`. 
+`lv_chart_set_cursor_pos(chart, cursor, &point)` sets the position of the cursor. 
+`pos` is a pointer to an `lv_point_t` variable. E.g. `lv_point_t point = {10, 20};`. If the chart is scrolled the cursor will remain on the same place.
 
 `lv_chart_get_point_pos_by_id(chart, series, id, &point_out)` tells the coordinate of a given point. It's useful to place the cursor to given point.
 
+`lv_chart_set_cursor_point(chart, cursor, series, point_id)` sticks the cursor the point. If the point's position changes (new value or scrolling) the cursor will move with the point.  
+
 ## Events
+- `LV_EVENT_VALUE_CHANGED` Sent when a new point is clicked perssed.  `lv_chart_get_pressed_point(chart)` returns the zero based index of the pressed point.
 - `LV_EVENT_DRAW_PART_BEGIN` and `LV_EVENT_DRAW_PART_END` are sent for multiple parts. The fields of `lv_obj_draw_part_dsc_t` is set as the followings:
    - `LV_PART_ITEMS` (the series)
        - *Line chart* `clip_area`, `id` (index of the point), `value` (value of `id`th point), `p1`, `p2` (points of the line), `draw_area` (area of the point), `line_dsc`, `rect_dsc`, `sub_part_ptr` (pointer to the series), `part`
